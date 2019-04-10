@@ -5,7 +5,7 @@
 // reliability, so you should only use RH_RF69  if you do not need the higher
 // level messaging abilities.
 
-//https://learn.adafruit.com/adafruit-feather-32u4-radio-with-rfm69hcw-module/using-the-rfm69-radio
+// https://learn.adafruit.com/adafruit-feather-32u4-radio-with-rfm69hcw-module/using-the-rfm69-radio
 
 #include <SPI.h>
 #include <RH_RF69.h>
@@ -49,7 +49,6 @@ void setup()
   Serial.println("RFM69 radio init OK!");
   
   // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM (for low power module)
-  // No encryption
   if (!rf69.setFrequency(RF69_FREQ)) {
     Serial.println("setFrequency failed");
   }
@@ -57,6 +56,11 @@ void setup()
   // If you are using a high power RF69 eg RFM69HW, you *must* set a Tx power with the
   // ishighpowermodule flag set like this:
   rf69.setTxPower(20, true);  // range from 14-20 for power, 2nd arg must be true for 69HCW
+
+  // Should probably read this from a local config file so it's not so public
+  uint8_t key[] = { 0x40, 0x4E, 0x63, 0x52, 0x66, 0x55, 0x6A, 0x58,
+                    0x6E, 0x32, 0x72, 0x35, 0x75, 0x38, 0x78, 0x21};
+  rf69.setEncryptionKey(key);
   
   pinMode(LED, OUTPUT);
 
