@@ -1,11 +1,8 @@
-// rf69 demo tx rx.pde
 // -*- mode: C++ -*-
-// Example sketch showing how to create a simple messageing client
-// with the RH_RF69 class. RH_RF69 class does not provide for addressing or
-// reliability, so you should only use RH_RF69  if you do not need the higher
-// level messaging abilities.
+// Raw Transmission Demo
 
 // https://learn.adafruit.com/adafruit-feather-32u4-radio-with-rfm69hcw-module/using-the-rfm69-radio
+
 #include <SPI.h>
 #include <RH_RF69.h>
 
