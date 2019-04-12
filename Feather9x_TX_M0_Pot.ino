@@ -73,7 +73,6 @@ void loop()
   char radiopacket[20] = "Souhayl: Value  #  ";
 
   float measureout = analogRead(OUT_1);
-  measuredvbat *= 2; // we divided by 2, so multiply back
   measureout *= 3.3;  // Multiply by 3.3V, our reference voltage
   measureout /= 1024; // convert to voltage
   Serial.print("OutVoltage: " ); Serial.println(measureout);
