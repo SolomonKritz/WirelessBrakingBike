@@ -17,7 +17,7 @@
 #define RFM69_CS      8
 #define RFM69_INT     7
 #define RFM69_RST     4
-#define OUT_1         A0
+#define IN_1         A0
 
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
@@ -64,7 +64,7 @@ int voltage = 0;
 int oldVoltage = -10;
 void loop() {
   delay(500);  // Wait 1 second between transmits, could also 'sleep' here!
-  voltage = analogRead(OUT_1);
+  voltage = analogRead(IN_1);
   // Should see how much measureout varies by before transmitting
   if (voltage - oldVoltage < -3 || voltage - oldVoltage > 3) {
     char radiopacket[5];

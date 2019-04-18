@@ -19,7 +19,7 @@
 #define RFM69_CS      8
 #define RFM69_INT     7
 #define RFM69_RST     4
-
+#define OUT_1         A0
 
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
@@ -77,6 +77,7 @@ void loop() {
       buf[len] = 0; // zero out remaining string
       voltage = atoi((char*)buf);
       Serial.println(voltage);
+    // analogWrite(OUT_1, voltage / 4);
     }
   //}
 }
