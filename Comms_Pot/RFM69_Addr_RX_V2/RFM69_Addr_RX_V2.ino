@@ -13,12 +13,13 @@
 #define RF69_FREQ 915.0
 
 // who am i? (server address)
-#define MY_ADDRESS     3
+#define MY_ADDRESS     1
 
 // Feather 32u4 w/Radio
 #define RFM69_CS      8
 #define RFM69_INT     7
 #define RFM69_RST     4
+#define LED           13
 
 
 // Singleton instance of the radio driver
@@ -27,13 +28,20 @@ RH_RF69 rf69(RFM69_CS, RFM69_INT);
 // Class to manage message delivery and receipt, using the driver declared above
 RHReliableDatagram rf69_manager(rf69, MY_ADDRESS);
 
+
+int16_t packetnum = 0;  // packet counter, we increment per xmission
+
 void setup() 
 {
   Serial.begin(115200);
   //while (!Serial) { delay(1); } // wait until serial console is open, remove if not tethered to computer
 
+  pinMode(LED, OUTPUT);     
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
+
+  Serial.println("Feather Addressed RFM69 RX Test!");
+  Serial.println();
 
   // manual reset
   digitalWrite(RFM69_RST, HIGH);
@@ -42,14 +50,14 @@ void setup()
   delay(10);
   
   if (!rf69_manager.init()) {
-    // RFM69 radio init failed
+    Serial.println("RFM69 radio init failed");
     while (1);
   }
-  // RFM69 radio init OK!
-  
+  Serial.println("RFM69 radio init OK!");
   // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM (for low power module)
+  // No encryption
   if (!rf69.setFrequency(RF69_FREQ)) {
-    // setFrequency failed
+    Serial.println("setFrequency failed");
   }
 
   // If you are using a high power RF69 eg RFM69HW, you *must* set a Tx power with the
@@ -60,23 +68,47 @@ void setup()
   uint8_t key[] = { 0x40, 0x4E, 0x63, 0x52, 0x66, 0x55, 0x6A, 0x58,
                     0x6E, 0x32, 0x72, 0x35, 0x75, 0x38, 0x78, 0x21};
   rf69.setEncryptionKey(key);
+  
+  pinMode(LED, OUTPUT);
+
+  Serial.print("RFM69 radio @");  Serial.print((int)RF69_FREQ);  Serial.println(" MHz");
 }
 
 
 // Dont put this on the stack:
+uint8_t data[] = "And hello back to you";
+// Dont put this on the stack:
 uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
-int voltage = 0;
+
 void loop() {
-  // Is more efficient battery wise to do available or recvfromAck?
-  // Can sleep be incorporated on the receiver
-  //if (rf69_manager.available()) {
+  if (rf69_manager.available())
+  {
     // Wait for a message addressed to us from the client
     uint8_t len = sizeof(buf);
     uint8_t from;
     if (rf69_manager.recvfromAck(buf, &len, &from)) {
       buf[len] = 0; // zero out remaining string
-      voltage = atoi((char*)buf);
-      Serial.println(voltage);
+      
+      Serial.print("Got packet from #"); Serial.print(from);
+      Serial.print(" [RSSI :");
+      Serial.print(rf69.lastRssi());
+      Serial.print("] : ");
+      Serial.println((char*)buf);
+      //Blink(LED, 40, 3); //blink LED 3 times, 40ms between blinks
+
+      // Send a reply back to the originator client
+      if (!rf69_manager.sendtoWait(data, sizeof(data), from))
+        Serial.println("Sending failed (no ack)");
     }
-  //}
+  }
+}
+
+
+void Blink(byte PIN, byte DELAY_MS, byte loops) {
+  for (byte i=0; i<loops; i++)  {
+    digitalWrite(PIN,HIGH);
+    delay(DELAY_MS);
+    digitalWrite(PIN,LOW);
+    delay(DELAY_MS);
+  }
 }
