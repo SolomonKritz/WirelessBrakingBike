@@ -72,6 +72,7 @@ void loop() {
     // Send a message to the DESTINATION!
     if (!rf69_manager.sendtoWait((uint8_t *)radiopacket, strlen(radiopacket), DEST_ADDRESS)) {
         //Sending failed (no ack)
+        
         //Do Something? Light up an LED maybe to alert user? IDK
     }
     oldVoltage = voltage;
