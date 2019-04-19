@@ -15,6 +15,11 @@
 // who am i? (server address)
 #define MY_ADDRESS     3
 
+//// Feather M0 w/Radio
+//#define RFM69_CS      8
+//#define RFM69_INT     3
+//#define RFM69_RST     4
+
 // Feather 32u4 w/Radio
 #define RFM69_CS      8
 #define RFM69_INT     7
