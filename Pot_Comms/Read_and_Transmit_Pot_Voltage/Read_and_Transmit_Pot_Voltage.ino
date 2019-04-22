@@ -13,7 +13,7 @@
 // change addresses for each client board, any number :)
 #define MY_ADDRESS     6
 
-//// Feather M0 w/Radio
+// Feather M0 w/Radio
 //#define RFM69_CS      8
 //#define RFM69_INT     3
 //#define RFM69_RST     4
@@ -22,6 +22,7 @@
 #define RFM69_CS      8
 #define RFM69_INT     7
 #define RFM69_RST     4
+
 #define IN_1         A0
 
 // Singleton instance of the radio driver
@@ -68,7 +69,7 @@ void setup()
 int voltage = 0;
 int oldVoltage = -10;
 void loop() {
-  delay(500);  // Wait 1 second between transmits, could also 'sleep' here!
+  delay(250);  // Wait 1 second between transmits, could also 'sleep' here!
   voltage = analogRead(IN_1);
   // Should see how much measureout varies by before transmitting
   if (voltage - oldVoltage < -3 || voltage - oldVoltage > 3) {

@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include <RH_RF69.h>
 #include <RHReliableDatagram.h>
+#include <Servo.h>
 
 /************ Radio Setup ***************/
 
@@ -26,6 +27,7 @@
 #define RFM69_RST     4
 
 #define OUT_1         A0
+#define SERVO_PIN     11
 
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
@@ -33,11 +35,13 @@ RH_RF69 rf69(RFM69_CS, RFM69_INT);
 // Class to manage message delivery and receipt, using the driver declared above
 RHReliableDatagram rf69_manager(rf69, MY_ADDRESS);
 
+// Servo Setup
+Servo myservo;
+
 void setup() 
 {
   Serial.begin(115200);
-  //while (!Serial) { delay(1); } // wait until serial console is open, remove if not tethered to computer
-
+  
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
 
@@ -72,6 +76,8 @@ void setup()
 // Dont put this on the stack:
 uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
 int voltage = 0;
+int val = 0;
+
 void loop() {
   // Is more efficient battery wise to do available or recvfromAck?
   // Can sleep be incorporated on the receiver
@@ -82,8 +88,13 @@ void loop() {
     if (rf69_manager.recvfromAck(buf, &len, &from)) {
       buf[len] = 0; // zero out remaining string
       voltage = atoi((char*)buf);
+      val = map(voltage, 0, 1023, 10, 180);  // scale it to use it with the servo (value between 0 and 180)
+      myservo.attach(SERVO_PIN);
+      myservo.write(val);  // sets the servo position according to the scaled value
       Serial.println(voltage);
-      //analogWrite(OUT_1, voltage / 4);
+      Serial.println(val);
+      delay(50);  
+      myservo.detach();
     }
   //}
 }
