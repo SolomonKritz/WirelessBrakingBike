@@ -1,4 +1,4 @@
-##ENEE408R - WirelessBrakingBike Project Directory Structure
+## ENEE408R - WirelessBrakingBike Project Directory Structure
 
 ### Basic_Hardware_IO
 #### Control_Motor
