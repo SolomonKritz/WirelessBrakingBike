@@ -43,4 +43,3 @@ void loop() {
  // myservo.detach(9);
   // waits for the servo to get there
 }
-
