@@ -24,6 +24,8 @@
 #define RFM69_RST     4
 
 #define IN_1         A0
+#define LED          13
+#define BUZZER       9
 
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
@@ -36,6 +38,7 @@ int16_t packetnum = 0;  // packet counter, we increment per xmission
 
 void setup() 
 {
+  Serial.begin(115200);
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
 
@@ -69,6 +72,7 @@ void setup()
 int voltage = 0;
 int oldVoltage = -10;
 void loop() {
+  Serial.println("ON");
   delay(250);  // Wait 1 second between transmits, could also 'sleep' here!
   voltage = analogRead(IN_1);
   // Should see how much measureout varies by before transmitting
@@ -77,11 +81,13 @@ void loop() {
     itoa(voltage, radiopacket, 10);
     // Send a message to the DESTINATION!
     if (!rf69_manager.sendtoWait((uint8_t *)radiopacket, strlen(radiopacket), DEST_ADDRESS)) {
-        //Sending failed (no ack)
-        
-        //Do Something? Light up an LED maybe to alert user? IDK
+      digitalWrite(LED, HIGH);
+      tone(BUZZER, 1000, 500);
     }
-    oldVoltage = voltage;
+    else {
+      oldVoltage = voltage;
+      digitalWrite(LED, LOW);
+    }
     rf69.sleep();
   }
 }
