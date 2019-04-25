@@ -92,7 +92,7 @@ bool RH_ASK::init()
 // Put these prescaler structs in PROGMEM, not on the stack
 #if (RH_PLATFORM == RH_PLATFORM_ARDUINO) || (RH_PLATFORM == RH_PLATFORM_GENERIC_AVR8)
  #if defined(RH_ASK_ARDUINO_USE_TIMER3)
- // Timer 2 has different prescalers
+ // Timer 3 has same prescalers
  PROGMEM static const uint16_t prescalers[] = {0, 1, 8, 32, 64, 128, 256, 3333}; 
  #else
  PROGMEM static const uint16_t prescalers[] = {0, 1, 8, 64, 256, 1024, 3333}; 
@@ -305,10 +305,10 @@ void RH_ASK::timerSetup()
     // This is the path for most Arduinos
     // figure out prescaler value and counter match value
   #if defined(RH_ASK_ARDUINO_USE_TIMER3)
-    prescaler = timerCalc(_speed, (uint8_t)-1, &nticks);
+    prescaler = timerCalc(_speed, (uint16_t)-1, &nticks);
     if (!prescaler)
         return; // fault
-    // Use timer 2
+    // Use timer 3
     TCCR3A = _BV(WGM31); // Turn on CTC mode)
     // convert prescaler index to TCCRnB prescaler bits CS10, CS11, CS12
     TCCR3B = prescaler;
@@ -323,7 +323,7 @@ void RH_ASK::timerSetup()
    #else
     // others
     TIMSK |= _BV(OCIE3A);
-   #endif // TIMSK2
+   #endif // TIMSK3
   #else
     // Use timer 1
     prescaler = timerCalc(_speed, (uint16_t)-1, &nticks);    
