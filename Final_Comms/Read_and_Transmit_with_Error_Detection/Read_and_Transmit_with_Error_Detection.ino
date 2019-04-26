@@ -69,12 +69,15 @@ void setup()
   rf69.setEncryptionKey(key);
 }
 
+int vread = 0;
 int voltage = 0;
 int oldVoltage = -10;
 void loop() {
   Serial.println("ON");
   delay(250);  // Wait 1 second between transmits, could also 'sleep' here!
-  voltage = analogRead(IN_1);
+ voltage = analogRead(IN_1);
+ // vread = analogRead(IN_1);
+ // voltage = (-(1023/548) * vread) + 1247.0146; 
   // Should see how much measureout varies by before transmitting
   if (voltage - oldVoltage < -3 || voltage - oldVoltage > 3) {
     char radiopacket[5];
