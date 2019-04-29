@@ -40,7 +40,7 @@ Servo myservo;
 
 void setup() 
 {
-  Serial.begin(115200);
+  //Serial.begin(115200);
   
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
@@ -89,7 +89,6 @@ void loop() {
       val = atoi((char*)buf);
       myservo.attach(SERVO_PIN);
       myservo.write(val);  // sets the servo position according to the scaled value
-      //Serial.println(voltage);
       //Serial.println(val);
       delay(50);  
       myservo.detach();
