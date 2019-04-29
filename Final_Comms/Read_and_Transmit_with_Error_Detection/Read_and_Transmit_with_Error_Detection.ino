@@ -27,6 +27,13 @@
 #define LED          13
 #define BUZZER       9
 
+#define MAX_SERVO 180
+#define MIN_SERVO 10
+#define MAX_POT 670
+#define MIN_POT 210
+
+#define THRESHOLD 5
+
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
 
@@ -38,7 +45,6 @@ int16_t packetnum = 0;  // packet counter, we increment per xmission
 
 void setup() 
 {
-  Serial.begin(115200);
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
 
@@ -69,26 +75,34 @@ void setup()
   rf69.setEncryptionKey(key);
 }
 
-int vread = 0;
-int voltage = 0;
-int oldVoltage = -10;
+int V_Read = 0;
+int V_Scaled = 0;
+int old_V_Read = -10;
 void loop() {
-  Serial.println("ON");
-  delay(250);  // Wait 1 second between transmits, could also 'sleep' here!
- voltage = analogRead(IN_1);
- // vread = analogRead(IN_1);
- // voltage = (-(1023/548) * vread) + 1247.0146; 
-  // Should see how much measureout varies by before transmitting
-  if (voltage - oldVoltage < -3 || voltage - oldVoltage > 3) {
-    char radiopacket[5];
-    itoa(voltage, radiopacket, 10);
+  
+  delay(250);  // Wait .25 second between transmits.
+  V_Read = analogRead(IN_1);
+    
+  if (V_Read - old_V_Read < -THRESHOLD || V_Read - old_V_Read > THRESHOLD) {
+
+    // Varies between 670 and like 210 (can get to 140)
+    // Need to go between 10 and 180? Need to configure more once justin gets the 
+    // motor mounted. 
+
+    V_Scaled = (V_Read - MIN_POT)*long(MAX_SERVO-MIN_SERVO)/(MAX_POT-MIN_POT)+MIN_SERVO;
+    if (V_Scaled > MAX_SERVO) V_Scaled = MAX_SERVO;
+    else if (V_Scaled < MIN_SERVO) V_Scaled = MIN_SERVO;
+
+    char radioPacket[5];
+    itoa(V_Scaled, radioPacket, 10);
+       
     // Send a message to the DESTINATION!
-    if (!rf69_manager.sendtoWait((uint8_t *)radiopacket, strlen(radiopacket), DEST_ADDRESS)) {
+    if (!rf69_manager.sendtoWait((uint8_t *)radioPacket, strlen(radioPacket), DEST_ADDRESS)) {
       digitalWrite(LED, HIGH);
       tone(BUZZER, 1000, 500);
     }
     else {
-      oldVoltage = voltage;
+      old_V_Read = V_Read;
       digitalWrite(LED, LOW);
     }
     rf69.sleep();

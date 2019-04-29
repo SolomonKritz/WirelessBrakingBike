@@ -75,7 +75,6 @@ void setup()
 
 // Dont put this on the stack:
 uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
-int voltage = 0;
 int val = 0;
 
 void loop() {
@@ -87,12 +86,11 @@ void loop() {
     uint8_t from;
     if (rf69_manager.recvfromAck(buf, &len, &from)) {
       buf[len] = 0; // zero out remaining string
-      voltage = atoi((char*)buf);
-      val = map(voltage, 0, 1023, 10, 180);  // scale it to use it with the servo (value between 0 and 180)
+      val = atoi((char*)buf);
       myservo.attach(SERVO_PIN);
       myservo.write(val);  // sets the servo position according to the scaled value
-      Serial.println(voltage);
-      Serial.println(val);
+      //Serial.println(voltage);
+      //Serial.println(val);
       delay(50);  
       myservo.detach();
     }
