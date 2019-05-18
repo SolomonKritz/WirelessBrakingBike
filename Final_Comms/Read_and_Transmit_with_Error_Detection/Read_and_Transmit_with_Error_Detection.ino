@@ -25,14 +25,14 @@
 
 #define IN_1         A0
 #define LED          13
-#define BUZZER       9
+#define BUZZER       6
 
 #define MAX_SERVO 180
 #define MIN_SERVO 10
 #define MAX_POT 670
 #define MIN_POT 210
 
-#define THRESHOLD 5
+#define THRESHOLD 8 //5
 
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
@@ -45,6 +45,8 @@ int16_t packetnum = 0;  // packet counter, we increment per xmission
 
 void setup() 
 {
+  //Serial.begin(115200);
+
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
 
@@ -77,14 +79,15 @@ void setup()
 
 int V_Read = 0;
 int V_Scaled = 0;
-int old_V_Read = -10;
+int old_V_Read = 500;
 void loop() {
   
   delay(250);  // Wait .25 second between transmits.
   V_Read = analogRead(IN_1);
-    
-  if (V_Read - old_V_Read < -THRESHOLD || V_Read - old_V_Read > THRESHOLD) {
+  //Serial.println(V_Read);
 
+  //if (V_Read - old_V_Read < -THRESHOLD || V_Read - old_V_Read > THRESHOLD) {
+  if (V_Read < MAX_POT - THRESHOLD || old_V_Read < MAX_POT - THRESHOLD) {
     // Varies between 670 and like 210 (can get to 140)
     // Need to go between 10 and 180? Need to configure more once justin gets the 
     // motor mounted. 
@@ -92,7 +95,8 @@ void loop() {
     V_Scaled = (V_Read - MIN_POT)*long(MAX_SERVO-MIN_SERVO)/(MAX_POT-MIN_POT)+MIN_SERVO;
     if (V_Scaled > MAX_SERVO) V_Scaled = MAX_SERVO;
     else if (V_Scaled < MIN_SERVO) V_Scaled = MIN_SERVO;
-
+//    V_Scaled = V_Scaled * -1;
+//    V_Scaled = V_Scaled + 190;
     char radioPacket[5];
     itoa(V_Scaled, radioPacket, 10);
        
@@ -102,9 +106,9 @@ void loop() {
       tone(BUZZER, 1000, 500);
     }
     else {
-      old_V_Read = V_Read;
       digitalWrite(LED, LOW);
     }
+    old_V_Read = V_Read;
     rf69.sleep();
   }
 }

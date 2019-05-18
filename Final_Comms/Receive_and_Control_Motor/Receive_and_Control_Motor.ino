@@ -26,7 +26,7 @@
 #define RFM69_INT     7
 #define RFM69_RST     4
 
-#define OUT_1         A0
+//#define OUT_1         A0
 #define SERVO_PIN     11
 
 // Singleton instance of the radio driver
